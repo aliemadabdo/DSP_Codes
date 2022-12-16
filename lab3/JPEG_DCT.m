@@ -1,0 +1,43 @@
+
+
+clear
+close all
+C8
+%%
+%Block divide
+
+grayImg = imread('gray_Img.PNG');       %Reading image
+
+[rows ,cols] = size(grayImg);            %Get number of rows and columns of the image           
+
+paddedRows = N*ceil(rows/N);            %Number of rows divisible by 8
+paddedCols = N*ceil(cols/N);            %Number of columns divisible by 8
+
+paddedImg=zeros(paddedRows ,paddedCols);
+paddedImg(1:rows,1:cols)= grayImg;      %Divisible by 8 image with zero padding
+
+% ---->>>>>reshape fn needs low level implementation <<<<<---------
+block8by8 = reshape(paddedImg,N,N,[]);  %The 8x8 blocks of the image 
+%block8by8(5,5,1450)                    %An example for the block 1450 fifth row fifth column
+
+[x ,y ,numberOfBlocks]=size(block8by8);
+
+DctOfTheBlock =zeros(N,N,numberOfBlocks); %could be discarded and use the varaible "block8by8" directly
+
+%loop on all blocks to apply DCT with C8 on them                                          
+for i=1:numberOfBlocks
+    DctOfTheBlock(:,:,i)= C_8*block8by8(:,:,i)*(C_8.'); %A^=CN*A*CN(transpose)
+end
+disp(DctOfTheBlock);
+%%
+%Quantization
+
+%%
+%Rescaling 
+
+%%
+%IDCT
+
+%%
+%Merging 
+
