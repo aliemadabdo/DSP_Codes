@@ -31,7 +31,7 @@ disp(DctOfTheBlock);
 %%
 %Quantization
 %A Standard Quantization Matrix for 50% quality 
-%r=input('Enter Scaling factor  '); %used  to change quantization level
+r=input('Enter Scaling factor  '); %used  to change quantization level
 q_mtx =     [16 11 10 16 24 40 51 61; 
             12 12 14 19 26 58 60 55;
             14 13 16 24 40 57 69 56; 
@@ -45,7 +45,7 @@ q = rescale(q_mtx,r,numberOfBlocks,DctOfTheBlock);
 
 %%
 %Rescaling 
-R = rescaling(q,r,q_mtx,numberOfBlocks);
+R = rescaling(q,r,q_mtx,numberOfBlocks);  
 
 %%
 %IDCT
@@ -62,10 +62,10 @@ function quantized_dct = rescale(x,y,n,dct)
     for k=1:n
         quantized_dct(:,:,k)= round(dct(:,:,k) ./ T); 
     end
-    disp(quantized_dct);      
+    %disp(quantized_dct);      
 end 
 
-function rescaled_dct = rescaling(y,r,q,n)
+function rescaled_block8by8 = rescaling(y,r,q,n)
   T=r.*q;
   for k=1:n
     rescaled_block8by8(:,:,k) = y(:,:,k) .* T;

@@ -18,14 +18,10 @@ paddedImg(1:rows,1:cols)= grayImg;      %Divisible by 8 image with zero padding
 
 % ---->>>>>reshape fn needs low level implementation <<<<<---------
 block8by8 = split_image(paddedImg,[N N]);  %The 8x8 blocks of the image 
-
-%An example for the block 1450 fifth row fifth column
-%block8by8(5,5,1450)                    
+%block8by8(5,5,1450)                    %An example for the block 1450 fifth row fifth column
 
 [x ,y ,numberOfBlocks]=size(block8by8);
-
-%could be discarded and use the varaible "block8by8" directly
-DctOfTheBlock =zeros(N,N,numberOfBlocks);
+DctOfTheBlock =zeros(N,N,numberOfBlocks); %could be discarded and use the varaible "block8by8" directly
 
 %loop on all blocks to apply DCT with C8 on them                                          
 for i=1:numberOfBlocks
@@ -69,7 +65,7 @@ function quantized_dct = rescale(x,y,n,dct)
     disp(quantized_dct);      
 end 
 
-function rescaled_dct = rescaling(y,r,q,n)
+function rescaled_block8by8 = rescaling(y,r,q,n)
   T=r.*q;
   for k=1:n
     rescaled_block8by8(:,:,k) = y(:,:,k) .* T;
