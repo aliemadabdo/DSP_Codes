@@ -30,7 +30,7 @@ for i=1:numberOfBlocks
 end
 disp(DctOfTheBlock);
 %%
-%%
+
 %Quantization
 %A Standard Quantization Matrix for 50% quality 
 r=input("Enter Scaling factor  ") %used  to change quantization level
@@ -55,6 +55,14 @@ end
 
 %%
 %Rescaling 
+R = rescaling(q,r,q_mtx,numberOfBlocks)
+function rescaled_dct = rescaling(y,r,q,n)
+  T=r.*q;
+  for k=1:n
+    rescaled_block8by8(:,:,k) = y(:,:,k) .* T;
+  end
+  disp(rescaled_block8by8);
+end
 
 %%
 %IDCT
