@@ -31,7 +31,8 @@ end
 disp(DctOfTheBlock);
 %%
 %Quantization
-A Standard Quantization Matrix for 50% quality 
+%A Standard Quantization Matrix for 50% quality 
+
 q_mtx =     [16 11 10 16 24 40 51 61; 
             12 12 14 19 26 58 60 55;
             14 13 16 24 40 57 69 56; 
@@ -40,11 +41,12 @@ q_mtx =     [16 11 10 16 24 40 51 61;
             24 35 55 64 81 104 113 92;
             49 64 78 87 103 121 120 101;
             72 92 95 98 112 100 103 99];
-r=input("Enter Scaling factor") used later to change quantization level
+%r=input("Enter Scaling factor") used later to change quantization level
 for k=1:numberOfBlocks
-    c(:,:,k)= round(block8by8(:,:,k) ./ q_mtx); 
+    quantized_dct(:,:,k)= round(DctOfTheBlock(:,:,k) ./ q_mtx); 
 end
-disp(c);      
+disp(quantized_dct);      
+
 
 %%
 %Rescaling 
