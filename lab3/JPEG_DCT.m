@@ -49,7 +49,10 @@ R = rescaling(q,r,q_mtx,numberOfBlocks);
 
 %%
 %IDCT
-
+for i=1:numberOfBlocks
+    IDCT_block(:,:,i)=(C_8.').*R(:,:,i).*C_8; %A=CN(transpose)*A^*CN
+end
+disp(IDCT_block);
 %%
 %Merging 
 %%
