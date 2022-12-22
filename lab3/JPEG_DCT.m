@@ -55,7 +55,8 @@ R = rescaling(q,r,q_mtx,numberOfBlocks);
 for i=1:numberOfBlocks
     IDCT_block(:,:,i)=(C_8.').*R(:,:,i).*C_8; %A=CN(transpose)*A^*CN
 end
-disp(IDCT_block);
+ IDCT_block2= IDCT_block+128
+disp(IDCT_block2);
 %%
 %Merging
 newImage=ones(paddedRows,paddedCols);
