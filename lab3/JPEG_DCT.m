@@ -7,9 +7,12 @@ C8
 %%
 %Block divide
 
-grayImg = imread('gray_Img.png');    %Reading image
-%grayImg = im2double(grayImg);
-
+img = imread('gray_Img.png');    %Reading image
+if size(img, 3) == 3
+    grayImg = rgb2gray(img);
+else
+    grayImg = img;
+end
 figure; imshow(grayImg); title('read image');
 
 [rows, cols] = size(grayImg);            %Get number of rows and columns of the image           
