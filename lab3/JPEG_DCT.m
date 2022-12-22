@@ -10,7 +10,7 @@ C8
 grayImg = imread('gray_Img.png');    %Reading image
 %grayImg = im2double(grayImg);
 
-figure; imshow(grayImg); title('readed image');
+figure; imshow(grayImg); title('read image');
 
 [rows, cols] = size(grayImg);            %Get number of rows and columns of the image           
 
@@ -36,7 +36,7 @@ end
 %%
 %Quantization
 %A Standard Quantization Matrix for 50% quality 
-r=input('Enter Scaling factor  '); %used  to change quantization level
+r=input('Enter Scaling factor  '); %used  to change quantization level 1 - 100
 q_mtx =     [16 11 10 16 24 40 51 61; 
             12 12 14 19 26 58 60 55;
             14 13 16 24 40 57 69 56; 
@@ -54,11 +54,11 @@ R = rescaling(q,r,q_mtx,numberOfBlocks);
 %disp(R);
 %%
 %IDCT
-IDCT_block = zeros(8);
+IDCT_block = zeros(8,8,numberOfBlocks);
 for i=1:numberOfBlocks
-    IDCT_block(:,:,i)=round(transpose(C_8)*R(:,:,i)*C_8); %A=CN(transpose)*A^*CN
+    IDCT_block(:,:,i)=transpose(C_8)*R(:,:,i)*C_8; %A=CN(transpose)*A^*CN
 end
-disp(IDCT_block);
+%disp(IDCT_block);
 %%
 %Merging
 newImage = merge(IDCT_block, paddedRows, paddedCols);
@@ -72,8 +72,8 @@ title('output image');
 
 %%functions
 function quantized_dct = rescale(x,y,n,dct)
-    T=y.*x;
-    quantized_dct = zeros(size(dct));
+    T=y*x;
+    quantized_dct = zeros(8,8,n);
     for k=1:n
         quantized_dct(:,:,k)= round(dct(:,:,k) ./ T); 
     end
@@ -81,8 +81,8 @@ function quantized_dct = rescale(x,y,n,dct)
 end 
 
 function rescaled_block8by8 = rescaling(y,r,q,n)
-    T=r.*q;
-    rescaled_block8by8 = zeros(size(y));
+    T=r*q;
+    rescaled_block8by8 = zeros(8,8,n);
     for k=1:n
     rescaled_block8by8(:,:,k) = y(:,:,k) .* T;
     end
@@ -123,7 +123,7 @@ function newImage = merge(IDCT_block, paddedRows, paddedCols)
             rmax=k*8;
             cmin=(j-1)*8+1;
             cmax=j*8;
-            newImage(rmin:rmax,cmin:cmax)= IDCT_block(:,:,k*j);
+            newImage(rmin:rmax,cmin:cmax)= IDCT_block(:,:,(k-1)*col_blocks+j);
         end
     end
 end
