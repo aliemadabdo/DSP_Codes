@@ -7,6 +7,8 @@ C8
 %Block divide
 
 grayImg = imread('gray_Img.PNG');       %Reading image
+% grayImg = rgb2gray(grayImg);
+% grayImg = double(grayImg);
 
 [rows ,cols] = size(grayImg);            %Get number of rows and columns of the image           
 
@@ -15,9 +17,7 @@ paddedCols = N*ceil(cols/N);            %Number of columns divisible by 8
 
 paddedImg=zeros(paddedRows ,paddedCols);
 paddedImg(1:rows,1:cols)= grayImg;      %Divisible by 8 image with zero padding
-
-imshow(paddedImg) %----- check padded image
-
+imshow(paddedImg)
 % ---->>>>>reshape fn needs low level implementation <<<<<---------
 block8by8 = split_image(paddedImg,[N N]);  %The 8x8 blocks of the image 
 %block8by8(5,5,1450)                    %An example for the block 1450 fifth row fifth column
@@ -72,7 +72,10 @@ for k=1:row_blocks
 end
 disp(newImage);
 
-
+subplot(1,2,1)
+imshow(grayImg),title('Original gray image');
+subplot(1,2,2)
+imshow(new_Image),title('Image after compression');
 %%
 
 %===========================end of the main===========================================
