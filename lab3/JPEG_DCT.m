@@ -6,13 +6,19 @@ C8
 %==================Main===========================
 %%
 %Block divide
+img = imread('Lena.jpg');    %Reading image
 
-img = imread('gray_Img.png');    %Reading image
+info_input = dir('Lena.jpg'); % get information about the image file
+input_img_size = info_input.bytes % get the file size in bytes
+
+
 if size(img, 3) == 3
     grayImg = rgb2gray(img);
 else
     grayImg = img;
 end
+
+
 figure; imshow(grayImg); title('read image');
 
 [rows, cols] = size(grayImg);            %Get number of rows and columns of the image           
@@ -66,6 +72,11 @@ end
 %Merging
 newImage = merge(IDCT_block, paddedRows, paddedCols);
 %disp(newImage);
+
+imwrite(newImage, 'compressedImg.jpg'); % save the image to a JPEG file
+info = dir('compressedImg.jpg'); % get information about the image file
+comp_img_size = info.bytes % get the file size in bytes
+
 figure; 
 imshow(uint8(newImage));  
 title('output image');
