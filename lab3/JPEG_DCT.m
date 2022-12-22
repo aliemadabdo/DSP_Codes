@@ -6,7 +6,11 @@ C8
 %%
 %Block divide
 
-grayImg = imread('gray_Img.PNG');       %Reading image
+grayImg = imread('gray_Img.PNG');      %Reading image
+grayImg = im2double(grayImg);
+
+figure; imshow('gray_Img.PNG');  title('orignal image');
+figure; imshow(grayImg);  title('readed image');
 
 [rows ,cols] = size(grayImg);            %Get number of rows and columns of the image           
 
@@ -16,8 +20,8 @@ paddedCols = N*ceil(cols/N);            %Number of columns divisible by 8
 paddedImg=zeros(paddedRows ,paddedCols);
 paddedImg(1:rows,1:cols)= grayImg;      %Divisible by 8 image with zero padding
 
-imshow(paddedImg) %----- check padded image
-
+figure; imshow(paddedImg) %----- check padded image
+ title('padded image');
 % ---->>>>>reshape fn needs low level implementation <<<<<---------
 block8by8 = split_image(paddedImg,[N N]);  %The 8x8 blocks of the image 
 %block8by8(5,5,1450)                    %An example for the block 1450 fifth row fifth column
@@ -29,7 +33,7 @@ DctOfTheBlock =zeros(N,N,numberOfBlocks); %could be discarded and use the varaib
 for i=1:numberOfBlocks
     DctOfTheBlock(:,:,i)= C_8.*block8by8(:,:,i).*(C_8.'); %A^=CN*A*CN(transpose)
 end
-disp(DctOfTheBlock);
+%disp(DctOfTheBlock);
 %%
 %Quantization
 %A Standard Quantization Matrix for 50% quality 
@@ -55,8 +59,8 @@ R = rescaling(q,r,q_mtx,numberOfBlocks);
 for i=1:numberOfBlocks
     IDCT_block(:,:,i)=(C_8.').*R(:,:,i).*C_8; %A=CN(transpose)*A^*CN
 end
- IDCT_block2= IDCT_block+128
-disp(IDCT_block2);
+ IDCT_block2= IDCT_block+128;
+%disp(IDCT_block2);
 %%
 %Merging
 newImage=ones(paddedRows,paddedCols);
@@ -71,8 +75,8 @@ for k=1:row_blocks
         newImage(rmin:rmax,cmin:cmax)= IDCT_block(:,:,k*j);
     end
 end
-disp(newImage);
-
+%disp(newImage);
+figure; imshow(newImage);  title('output image');
 %%
 
 %===========================end of the main===========================================
@@ -91,7 +95,7 @@ function rescaled_block8by8 = rescaling(y,r,q,n)
   for k=1:n
     rescaled_block8by8(:,:,k) = y(:,:,k) .* T;
   end
-  disp(rescaled_block8by8);
+  %disp(rescaled_block8by8);
 end
 
 function blocks = split_image(I, block_size)
