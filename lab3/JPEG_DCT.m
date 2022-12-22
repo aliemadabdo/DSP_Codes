@@ -1,27 +1,26 @@
-clear
 close all
+clear
+clc
 C8
 
 %==================Main===========================
 %%
 %Block divide
 
-grayImg = imread('gray_Img.PNG');      %Reading image
-grayImg = im2double(grayImg);
+grayImg = imread('gray_Img.png');    %Reading image
+%grayImg = im2double(grayImg);
 
-figure; imshow('gray_Img.PNG');  title('orignal image');
-figure; imshow(grayImg);  title('readed image');
+figure; imshow(grayImg); title('readed image');
 
-[rows ,cols] = size(grayImg);            %Get number of rows and columns of the image           
+[rows, cols] = size(grayImg);            %Get number of rows and columns of the image           
 
 paddedRows = N*ceil(rows/N);            %Number of rows divisible by 8
 paddedCols = N*ceil(cols/N);            %Number of columns divisible by 8
 
-paddedImg=zeros(paddedRows ,paddedCols);
-paddedImg(1:rows,1:cols)= grayImg;      %Divisible by 8 image with zero padding
+paddedImg=zeros(paddedRows, paddedCols);
+paddedImg(1:rows, 1:cols)= grayImg;      %Divisible by 8 image with zero padding
 
-figure; imshow(paddedImg) %----- check padded image
- title('padded image');
+figure; imshow(uint8(paddedImg)); title('padded image');
 % ---->>>>>reshape fn needs low level implementation <<<<<---------
 block8by8 = split_image(paddedImg,[N N]);  %The 8x8 blocks of the image 
 %block8by8(5,5,1450)                    %An example for the block 1450 fifth row fifth column
@@ -31,7 +30,7 @@ DctOfTheBlock =zeros(N,N,numberOfBlocks); %could be discarded and use the varaib
 
 %loop on all blocks to apply DCT with C8 on them                                          
 for i=1:numberOfBlocks
-    DctOfTheBlock(:,:,i)= C_8.*block8by8(:,:,i).*(C_8.'); %A^=CN*A*CN(transpose)
+    DctOfTheBlock(:,:,i)= C_8*block8by8(:,:,i)*transpose(C_8); %A^=CN*A*CN(transpose)
 end
 %disp(DctOfTheBlock);
 %%
@@ -48,35 +47,25 @@ q_mtx =     [16 11 10 16 24 40 51 61;
             72 92 95 98 112 100 103 99];
 
 q = rescale(q_mtx,r,numberOfBlocks,DctOfTheBlock);
-
+%disp(q);
 %%
 %Rescaling 
 R = rescaling(q,r,q_mtx,numberOfBlocks);  
-
+%disp(R);
 %%
 %IDCT
-
+IDCT_block = zeros(8);
 for i=1:numberOfBlocks
-    IDCT_block(:,:,i)=(C_8.').*R(:,:,i).*C_8; %A=CN(transpose)*A^*CN
+    IDCT_block(:,:,i)=round(transpose(C_8)*R(:,:,i)*C_8); %A=CN(transpose)*A^*CN
 end
- IDCT_block2= IDCT_block+128;
-%disp(IDCT_block2);
+disp(IDCT_block);
 %%
 %Merging
-newImage=ones(paddedRows,paddedCols);
-row_blocks=paddedRows/8;
-col_blocks=paddedCols/8;
-for k=1:row_blocks
-    for j=1:col_blocks
-        rmin=(k-1)*8+1;
-        rmax=k*8;
-        cmin=(j-1)*8+1;
-        cmax=j*8;
-        newImage(rmin:rmax,cmin:cmax)= IDCT_block(:,:,k*j);
-    end
-end
+newImage = merge(IDCT_block, paddedRows, paddedCols);
 %disp(newImage);
-figure; imshow(newImage);  title('output image');
+figure; 
+imshow(uint8(newImage));  
+title('output image');
 %%
 
 %===========================end of the main===========================================
@@ -84,6 +73,7 @@ figure; imshow(newImage);  title('output image');
 %%functions
 function quantized_dct = rescale(x,y,n,dct)
     T=y.*x;
+    quantized_dct = zeros(size(dct));
     for k=1:n
         quantized_dct(:,:,k)= round(dct(:,:,k) ./ T); 
     end
@@ -91,34 +81,49 @@ function quantized_dct = rescale(x,y,n,dct)
 end 
 
 function rescaled_block8by8 = rescaling(y,r,q,n)
-  T=r.*q;
-  for k=1:n
+    T=r.*q;
+    rescaled_block8by8 = zeros(size(y));
+    for k=1:n
     rescaled_block8by8(:,:,k) = y(:,:,k) .* T;
-  end
-  %disp(rescaled_block8by8);
+    end
+    %disp(rescaled_block8by8);
 end
 
 function blocks = split_image(I, block_size)
 %splits the image matrix I into small blocks of size BLOCK_SIZE, and returns the blocks as a 3D matrix.
 
-[nrows, ncols] = size(I);       % Get the number of rows and columns in the image
+    [nrows, ncols] = size(I);       % Get the number of rows and columns in the image
 
-% Get the number of blocks in each direction
-nblocks_row = ceil(nrows/block_size(1));
-nblocks_col = ceil(ncols/block_size(2));
+    % Get the number of blocks in each direction
+    nblocks_row = ceil(nrows/block_size(1));
+    nblocks_col = ceil(ncols/block_size(2));
 
-% Initialize the output matrix
-blocks = zeros(block_size(1), block_size(2), nblocks_row*nblocks_col);
+    % Initialize the output matrix
+    blocks = zeros(block_size(1), block_size(2), nblocks_row*nblocks_col);
 
-% Split the image into blocks
-for i = 1:nblocks_row
-    for j = 1:nblocks_col
-        % Get the current block
-        block = I((i-1)*block_size(1)+1:i*block_size(1), (j-1)*block_size(2)+1:j*block_size(2));
-        
-        % Store the block in the output matrix
-        blocks(:,:,(i-1)*nblocks_col+j) = block;
+    % Split the image into blocks
+    for i = 1:nblocks_row
+        for j = 1:nblocks_col
+            % Get the current block
+            block = I((i-1)*block_size(1)+1:i*block_size(1), (j-1)*block_size(2)+1:j*block_size(2));
+
+            % Store the block in the output matrix
+            blocks(:,:,(i-1)*nblocks_col+j) = block;
+        end
+    end
+    %disp(blocks);
+end
+function newImage = merge(IDCT_block, paddedRows, paddedCols)
+    newImage = zeros(paddedRows, paddedCols);
+    row_blocks = paddedRows/8;
+    col_blocks = paddedCols/8;
+    for k=1:row_blocks
+        for j=1 : col_blocks
+            rmin=(k-1)*8+1;
+            rmax=k*8;
+            cmin=(j-1)*8+1;
+            cmax=j*8;
+            newImage(rmin:rmax,cmin:cmax)= IDCT_block(:,:,k*j);
+        end
     end
 end
-end
-
